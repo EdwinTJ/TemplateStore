@@ -1,6 +1,7 @@
 import Catalog from "../../feature/catalog/Catalog";
 import Header from "./Header";
 import CssBaseline from "@mui/material/CssBaseline";
+
 import { Container, createTheme, ThemeProvider } from "@mui/material";
 import { useState } from "react";
 import { Route } from "react-router-dom";
