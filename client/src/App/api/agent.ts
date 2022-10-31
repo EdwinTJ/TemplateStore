@@ -15,6 +15,9 @@ axios.interceptors.response.use(
   },
   (error: AxiosError) => {
     const { data, status } = error.response!;
+    //const status = error.status;
+    //const data = response?.data as any;
+
     switch (status) {
       case 400:
         if (data.errors) {
@@ -31,12 +34,12 @@ axios.interceptors.response.use(
       case 401:
         toast.error(data.title);
         break;
-      case 500:
-        history.push({
-          pathname: "/server-error",
-          state: { error: data },
-        });
-        break;
+      // case 500:
+      //   history.push({
+      //     pathname: "/server-error",
+      //     state: { error: data },
+      //   });
+      //   break;
       default:
         break;
     }
