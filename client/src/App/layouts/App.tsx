@@ -2,7 +2,7 @@ import Header from "./Header";
 import "react-toastify/dist/ReactToastify.css";
 import ServerError from "../errors/ServerError";
 import NotFound from "../errors/NotFound";
-import { Route, Switch } from "react-router";
+import { Route, Switch } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import {
   Container,

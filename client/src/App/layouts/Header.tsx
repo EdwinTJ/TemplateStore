@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { ShoppingCart } from "@mui/icons-material";
 
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 interface Props {
   darkMode: boolean;
