@@ -1,3 +1,4 @@
+import { LoadingButton } from "@mui/lab";
 import {
   Divider,
   Grid,
@@ -6,31 +7,60 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import agent from "../../App/api/agent";
+import { useStoreContext } from "../../App/context/StoreContext";
 import NotFound from "../../App/errors/NotFound";
 import LoadingComponent from "../../App/layouts/LoadingComponent";
 import { Product } from "../../App/models/product";
 
 export default function ProductDetails() {
+  const { basket, setBasket, removeItem } = useStoreContext();
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const item = basket?.items.find((i) => i.productId === product?.id);
 
   useEffect(() => {
+    if (item) setQuantity(item.quantity);
     agent.Catalog.details(parseInt(id))
       .then((response) => setProduct(response))
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, item]);
+
+  function handleInputChange(event: any) {
+    if (event.target.value > 0) {
+      setQuantity(parseInt(event.target.value));
+    }
+  }
+
+  function handleUpdateCart() {
+    setSubmitting(true);
+    if (!item || quantity > item.quantity) {
+      const updatedQuantity = item ? quantity - item.quantity : quantity;
+      agent.Basket.addItem(product?.id!, updatedQuantity)
+        .then((basket) => setBasket(basket))
+        .catch((error) => console.log(error))
+        .finally(() => setSubmitting(false));
+    } else {
+      const updatedQuantity = item.quantity - quantity;
+      agent.Basket.removeItem(product?.id!, updatedQuantity)
+        .then(() => removeItem(product?.id!, updatedQuantity))
+        .catch((error) => console.log(error))
+        .finally(() => setSubmitting(false));
+    }
+  }
+
   if (loading) return <LoadingComponent message="Loading product..." />;
 
   if (!product) return <NotFound />;
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
@@ -72,6 +102,32 @@ export default function ProductDetails() {
             </TableBody>
           </Table>
         </TableContainer>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <TextField
+              variant="outlined"
+              type="number"
+              label="Quantity in Cart"
+              fullWidth
+              value={quantity}
+              onChange={handleInputChange}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <LoadingButton
+              disabled={item?.quantity === quantity}
+              loading={submitting}
+              onClick={handleUpdateCart}
+              sx={{ height: "55px" }}
+              color="primary"
+              size="large"
+              variant="contained"
+              fullWidth
+            >
+              {item ? "Update Quantity" : "Add to Cart"}
+            </LoadingButton>
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   );
